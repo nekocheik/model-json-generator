@@ -5,33 +5,56 @@
  * @return {array} array white a model
  */
 
-const genArray = function( model,  ) {
-  const array = [];
 
-  for (let i = 1; i < 21; i++) {
-    array[i] = Object.assign({}, model);
-    for (const key in model) {
-      const regex = new RegExp(/(\${(.+)})/);
-      const varible = eval(model[key].match(regex)[2]);
-      array[i][key] = model[key].replace( regex, varible);
+
+class genrator {
+
+  constructor (model, { indexStart = 0, indexEnd , log  }) {
+    this.model = model
+    this.indexStart =  indexStart
+    this.i = indexStart
+    this.indexEnd = indexEnd
+    this.log = log
+    this.array = []
+
+
+    if (!indexEnd) {
+      console.log("the function genModelArray need parms end" )
+    } else {
+    }
+    
+  }
+
+  genVariable = ( value ) => {
+    let array = this.array
+    let i = this.i
+    let regex = new RegExp(/(\${([\w\d]+)})/);
+    if (value.match(regex)) {
+      let newValue = eval(value.match(regex)[2])
+      return this.genVariable( value.replace(regex, newValue)) ;
+    } else {
+      return value
     }
   }
 
-  return array;
-};
+  genModelArray = ( ) => {
+    for ( null ; this.i < this.indexEnd; this.i++) {
+      this.array[this.i] = Object.assign({}, model);
+      for (const key in this.model) {
+        this.array[this.i][key] = this.genVariable(model[key])
+      }
+    }
+  };
+}
 
 const model = {
-  'hopitaux': '${Math.floor(Math.random() * Math.floor(3))}',
-  'maladie': '${Math.floor(Math.random() * 10)}',
-  'total': '${ array[i].hopitaux + array[i].maladie }',
-  'name': '${i}_departement',
-  'number': '${i}',
+  'name': '${i}',
 };
 
-let newJSON = genArray(model, {
+let newJSON = new genrator( model, {
   indexStart: 1,
   indexEnd: 21,
-  log: console.log(),
+  log: "${i}",
 });
 
-console.log()
+console.log(newJSON.array)
